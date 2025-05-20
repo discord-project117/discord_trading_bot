@@ -21,17 +21,8 @@ def is_market_open():
 last_position = {}
 
 async def check_sma_cross(bot, channel_id, tickers):
-    print(f"[DEBUG] Market open? {is_market_open()}")
-    channel = bot.get_channel(channel_id)
-    print(f"[DEBUG] Channel: {channel}")
-    if "SPY" in tickers: # ✅ Send a one-time fake test message
-        await channel.send(
-            "🧪 **[Test Alert] SPY has crossed its 200-day SMA!**\n"
-            "Price: $444.44 | SMA200: $443.21\n"
-            "_(This is a test message confirming the SMA alert system is working.)_"
-        )
-    # if not is_market_open():
-    #     return  # Skip polling outside market hours
+    if not is_market_open():
+        return  # Skip polling outside market hours
     channel = bot.get_channel(channel_id)
 
     for ticker in tickers:

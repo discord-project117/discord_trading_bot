@@ -172,7 +172,6 @@ async def on_ready():
 
 async def start_sma_alerts():
     await bot.wait_until_ready()
-    print("[DEBUG] Running SMA check...")
     tickers = ["SPY", "QQQ"]
     channel_id = 1373493761887305840  # 👈 replace with the actual numeric ID
 

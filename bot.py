@@ -8,6 +8,7 @@ import asyncio
 import re
 from datetime import datetime
 import alerts
+import charting as ch
 
 
 def get_whales_option_flow(ticker: str, limit: int = 50):
@@ -166,7 +167,7 @@ bot = commands.Bot(command_prefix="!", intents=intents)
 # Event: bot is ready
 @bot.event
 async def on_ready():
-    print(f"✅ Bot connected as {bot.user}")
+    print(f"✅ Test Bot connected as {bot.user}")
     bot.loop.create_task(start_sma_alerts())
 
 
@@ -278,6 +279,32 @@ async def flow(ctx, ticker: str, *, filters: str = ""):
     except Exception as e:
         await ctx.send(f"❌ Error fetching flow: {e}")
 
+@bot.command()
+async def chart(ctx, ticker: str, *, filters: str = ""):
+    timeframe = "1D"  # default timeframe
+
+    try:
+        args = dict(arg.split("=") for arg in filters.split() if "=" in arg)
+        if "timeframe" in args:
+            timeframe = args["timeframe"].upper()
+
+        if timeframe not in {"1H", "4H", "1D", "1W"}:
+            await ctx.send("⚠️ Invalid timeframe. Choose from: 1H, 4H, 1D, 1W.")
+            return
+
+        await ctx.send(f"📈 Generating chart for `{ticker.upper()}` ({timeframe})...")
+        chart_path = ch.plot_candle_chart_with_rsi(ticker, timeframe)
+
+        await ctx.send(file=discord.File(chart_path))
+
+        # Clean up the file after sending
+        os.remove(chart_path)
+
+    except ValueError as ve:
+        await ctx.send(f"❌ Error: {ve}")
+    except Exception as e:
+        await ctx.send(f"❌ Something went wrong generating the chart.")
+        print(f"[chart command error] {e}")
 
 # Run the bot
 bot.run(TOKEN)
